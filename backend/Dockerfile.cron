@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy only the sync script
+COPY sync_minio_to_s3.py .
+COPY .env .
+
+# Install cron
+RUN apt-get update && apt-get install -y cron
+
+# Create a cron job that runs every 24 hours
+RUN echo "0 0 * * * python /app/sync_minio_to_s3.py >> /var/log/cron.log 2>&1" > /etc/cron.d/sync-job
+
+# Give execution rights
+RUN chmod 0644 /etc/cron.d/sync-job
+
+# Apply cron job
+RUN crontab /etc/cron.d/sync-job
+
+# Run cron in the foreground (so container keeps running)
+CMD cron -f

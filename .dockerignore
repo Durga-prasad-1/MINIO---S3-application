@@ -1,0 +1,10 @@
+# Ignore Python caches and local environments
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+backend/__pycache__/
+frontend/node_modules/
+.env
+.git
